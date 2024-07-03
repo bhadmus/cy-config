@@ -1,5 +1,5 @@
 {
-  "name": "cypress-configurator",
+  "name": "cy-confwiz",
   "version": "1.0.0",
   "type": "module",
   "description": "",
@@ -8,7 +8,7 @@
     "start": "node config-wizard.js"
   },
   "bin": {
-    "cypress-config-wizard": "./config-wizard.js"
+    "cy-config": "./config-wizard.js"
   },
   "repository": {
     "type": "git",
