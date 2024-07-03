@@ -1,0 +1,34 @@
+{
+  "name": "cypress-configurator",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node config-wizard.js"
+  },
+  "bin": {
+    "cypress-config-wizard": "./config-wizard.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bhadmus/cy-config.git"
+  },
+  "keywords": [
+    "cypress",
+    "configuration",
+    "cli"
+  ],
+  "author": "Ademola Bhadmus",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bhadmus/cy-config/issues"
+  },
+  "homepage": "https://github.com/bhadmus/cy-config#readme",
+  "dependencies": {
+    "inquirer": "^8.4.0",
+    "fs-extra": "^10.0.0",
+    "path": "^0.12.7",
+    "child_process": "^1.1.2"
+  }
+}
