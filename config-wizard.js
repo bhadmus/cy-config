@@ -12,67 +12,118 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 async function runWizard() {
-    console.log("‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹");
-    console.log("‹ Cypress Auto Config Bot ‹");
-    console.log("‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹");
+  console.log("‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹");
+  console.log("‹ Cypress Auto Config Bot ‹");
+  console.log("‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹");
 
-    const answers = await inquirer.prompt([
-        {
-            type: 'list',
-            name: 'configLanguage',
-            message: 'Which configuration language do you want to use?',
-            choices: ['JavaScript', 'TypeScript'],
-            default: 'JavaScript'
-        },
-        {
-            type: 'input',
-            name: 'baseUrl',
-            message: 'What is the base URL for your tests?',
-            default: 'https://example.cypress.io'
-        },
-        {
-            type: 'confirm',
-            name: 'testDesign',
-            message: 'Do you want BDD?',
-            default: false
-        },
-        {
-            type: 'list',
-            name: 'testFramework',
-            message: 'Which test framework do you want to use?',
-            choices: ['Mocha', 'Jasmine'],
-            default: 'Mocha'
-        },
-        {
-            type: 'confirm',
-            name: 'installDependencies',
-            message: 'Do you want to run npm install after creating the files?',
-            default: true
-        }
-    ]);
-
-    // Ask for bundler only if BDD is chosen
-    if (answers.testDesign) {
-        const bundlerAnswer = await inquirer.prompt([
-            {
-                type: 'list',
-                name: 'bundler',
-                message: 'Which bundler do you prefer?',
-                choices: ['browserify', 'esbuild', 'webpack'],
-                default: 'browserify'
-            }
-        ]);
-        answers.bundler = bundlerAnswer.bundler;
+  const answers = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'configLanguage',
+      message: 'Which configuration language do you want to use?',
+      choices: ['JavaScript', 'TypeScript'],
+      default: 'JavaScript'
+    },
+    {
+      type: 'input',
+      name: 'baseUrl',
+      message: 'What is the base URL for your tests?',
+      default: 'https://example.cypress.io'
+    },
+    {
+      type: 'confirm',
+      name: 'testDesign',
+      message: 'Do you want to setup BDD?',
+      default: false
+    },
+    {
+      type: 'confirm',
+      name: 'reportChoice',
+      message: 'Do you want to setup a reporter?',
+      default: false
+    },
+    {
+      type: 'list',
+      name: 'testFramework',
+      message: 'Which test framework do you want to use?',
+      choices: ['Mocha', 'Jasmine'],
+      default: 'Mocha'
+    },
+    {
+      type: 'confirm',
+      name: 'installDependencies',
+      message: 'Do you want to run npm install after creating the files?',
+      default: false
     }
+  ]);
 
-    const configFileName = answers.configLanguage === 'JavaScript' ? 'cypress.config.js' : 'cypress.config.ts';
-    const configFilePath = path.join(process.cwd(), configFileName);
-    const packageJsonPath = path.join(process.cwd(), 'package.json');
+  // Ask for bundler only if BDD is chosen
+  if (answers.testDesign) {
+    const bundlerAnswer = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'bundler',
+        message: 'Which bundler do you prefer?',
+        choices: ['browserify', 'esbuild', 'webpack'],
+        default: 'browserify'
+      }
+    ]);
+    answers.bundler = bundlerAnswer.bundler;
+  }
 
-    const tsConfigFilePath = path.join(process.cwd(), 'tsconfig.json'); // tsconfig.json path directly in cwd
+  // Ask for reporter choice based on previous answers
+  if (answers.reportChoice) {
+    const reporterAnswer = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'reporter',
+        message: 'Which reporter do you prefer?',
+        choices: answers.testDesign ? ['badeball', 'multiple-cucumber-html-reporter'] : ['mochawesome', 'allure'],
+        default: answers.testDesign ? 'badeball' : 'mochawesome'
+      }
+    ]);
+    answers.reporter = reporterAnswer.reporter;
+  }
 
-    const bundlerConfig = {
-        browserify: answers.configLanguage === 'JavaScript' ? `
+  const configFileName = answers.configLanguage === 'JavaScript' ? 'cypress.config.js' : 'cypress.config.ts';
+  const configFilePath = path.join(process.cwd(), configFileName);
+  const packageJsonPath = path.join(process.cwd(), 'package.json');
+
+  const tsConfigFilePath = path.join(process.cwd(), 'tsconfig.json'); // tsconfig.json path directly in cwd
+
+  const reporterConfig = {
+      mochawesome: `
+        const { defineConfig } = require('cypress');
+
+        module.exports = defineConfig({
+            reporter: 'cypress-mochawesome-reporter',
+            e2e: {
+                baseUrl: '${answers.baseUrl}',
+                setupNodeEvents(on, config) {
+                    require('cypress-mochawesome-reporter/plugin')(on);
+                }
+            }
+        });
+      `,
+      allure: `
+          const { defineConfig } = require('cypress');
+          const { allureCypress } = require("allure-cypress/reporter");
+
+          module.exports = defineConfig({
+              e2e: {
+                  baseUrl: '${answers.baseUrl}',
+                  setupNodeEvents(on, config) {
+                      allureCypress(on);
+                  }
+              }
+          });
+            `   
+
+      
+  }
+
+  const bundlerConfig = {
+    browserify: answers.configLanguage === 'JavaScript' ? `
 const { defineConfig } = require('cypress');
 const preprocessor = require("@badeball/cypress-cucumber-preprocessor");
 const browserify = require("@badeball/cypress-cucumber-preprocessor/browserify");
@@ -125,7 +176,7 @@ export default defineConfig({
 });
         
         `,
-        esbuild: answers.configLanguage === 'JavaScript' ? `
+    esbuild: answers.configLanguage === 'JavaScript' ? `
 const { defineConfig } = require('cypress');
 const createBundler = require('@bahmutov/cypress-esbuild-preprocessor');
 const addCucumberPreprocessorPlugin = require('@badeball/cypress-cucumber-preprocessor').addCucumberPreprocessorPlugin;
@@ -158,7 +209,7 @@ export default defineConfig({
     }
 });
         `,
-        webpack: answers.configLanguage === 'JavaScript' ? `
+    webpack: answers.configLanguage === 'JavaScript' ? `
 const { defineConfig } = require("cypress");
 const webpack = require("@cypress/webpack-preprocessor");
 const {
@@ -261,13 +312,16 @@ export default defineConfig({
     }
 });
         `
-    };
+  };
 
-    let configContent;
-    if (answers.testDesign) {
-        configContent = bundlerConfig[answers.bundler];
-    } else {
-        configContent = answers.configLanguage === 'JavaScript' ? `
+  let configContent;
+  if (answers.testDesign) {
+    configContent = bundlerConfig[answers.bundler];
+  } else if (answers.reportChoice) {
+    configContent = reporterConfig[answers.reporter]
+  }
+  else {
+    configContent = answers.configLanguage === 'JavaScript' ? `
 const { defineConfig } = require('cypress');
 
 module.exports = defineConfig({
@@ -290,100 +344,154 @@ export default defineConfig({
     }
 });
         `;
+  }
+
+  await fs.writeFile(configFilePath, configContent);
+
+  const packageJsonContent = {
+    "name": "cypress-project",
+    "version": "1.0.0",
+    "description": "A project configured with Cypress",
+    "main": "index.js",
+    "scripts": {
+      "test": "npx cypress run"
+    },
+    "devDependencies": {
+      "cypress": "latest"
     }
 
-    await fs.writeFile(configFilePath, configContent);
+  };
 
-    const packageJsonContent = {
-        "name": "cypress-project",
-        "version": "1.0.0",
-        "description": "A project configured with Cypress",
-        "main": "index.js",
-        "scripts": {
-            "test": "npx cypress run"
-        },
-        "devDependencies": {
-            "cypress": "latest"
-        }
+  if (answers.testDesign) {
+    packageJsonContent.devDependencies["@badeball/cypress-cucumber-preprocessor"] = "latest";
+
+    if (answers.bundler === 'browserify') {
+      packageJsonContent.devDependencies["@cypress/browserify-preprocessor"] = "latest";
+    } else if (answers.bundler === 'esbuild') {
+      packageJsonContent.devDependencies["@bahmutov/cypress-esbuild-preprocessor"] = "latest";
+    } else if (answers.bundler === 'webpack') {
+      packageJsonContent.devDependencies["@cypress/webpack-preprocessor"] = "latest";
+      packageJsonContent.devDependencies["webpack"] = "latest"; // Adding webpack itself as a dependency
+    }
+  }
+  if (answers.testDesign && answers.reportChoice) {
+    // let packageJsonObject = JSON.parse(packageJsonContent);
+    packageJsonContent["cypress-cucumber-preprocessor"] = {
+      "json": {
+        "enabled": true,
+        "output": "reports/json/results.json"
+      }
     };
+    await fs.writeFile(packageJsonPath, JSON.stringify(packageJsonContent, null, 2));
 
-    if (answers.testDesign) {
-        packageJsonContent.devDependencies["@badeball/cypress-cucumber-preprocessor"] = "latest";
-
-        if (answers.bundler === 'browserify') {
-            packageJsonContent.devDependencies["@cypress/browserify-preprocessor"] = "latest";
-        } else if (answers.bundler === 'esbuild') {
-            packageJsonContent.devDependencies["@bahmutov/cypress-esbuild-preprocessor"] = "latest";
-        } else if (answers.bundler === 'webpack') {
-            packageJsonContent.devDependencies["@cypress/webpack-preprocessor"] = "latest";
-            packageJsonContent.devDependencies["webpack"] = "latest"; // Adding webpack itself as a dependency
+    switch (answers.reporter) {
+      case 'badeball':
+        packageJsonContent["cypress-cucumber-preprocessor"]["html"] = {
+          "enabled": true,
+          "output": "reports/html/results.html"
         }
+        break
+      case 'multiple-cucumber-html-reporter':
+        packageJsonContent.devDependencies["multiple-cucumber-html-reporter"] = "latest";
+
     }
 
-    // Add typescript as a dependency if TypeScript is selected
-    if (answers.configLanguage === 'TypeScript') {
-        packageJsonContent.devDependencies["typescript"] = "latest";
-        if (answers.bundler === 'webpack') {
-            packageJsonContent.devDependencies["ts-loader"] = "latest";
-        }
+
+  } else if (answers.reportChoice) {
+    switch (answers.reporter) {
+      case 'mochawesome':
+        packageJsonContent.devDependencies["cypress-mochawesome-reporter"] = "^3.8.2";
+        break
+      case 'allure':
+        packageJsonContent.devDependencies["allure-commandline"] = "^2.29.0";
+        packageJsonContent.devDependencies["allure-cypress"] = "^2.15.1";
+
     }
+  }
 
-    // Write package.json
-    await fs.writeJson(packageJsonPath, packageJsonContent, { spaces: 2 });
-
-    if (answers.installDependencies) {
-        console.log('Running npm install...');
-        exec('npm install', { cwd: process.cwd() }, (error, stdout, stderr) => {
-            if (error) {
-                console.error(`Error during npm install: ${error.message}`);
-                return;
-            }
-            console.log(stdout);
-            console.error(stderr);
-        });
+  // Add typescript as a dependency if TypeScript is selected
+  if (answers.configLanguage === 'TypeScript') {
+    packageJsonContent.devDependencies["typescript"] = "latest";
+    if (answers.bundler === 'webpack') {
+      packageJsonContent.devDependencies["ts-loader"] = "latest";
     }
+  }
 
-    // Create Cypress folder structure
-    const cypressDirs = [
-        path.join(process.cwd(), 'cypress', 'e2e'),
-        path.join(process.cwd(), 'cypress', 'fixtures'),
-        path.join(process.cwd(), 'cypress', 'support')
-    ];
+  // Write package.json
+  await fs.writeJson(packageJsonPath, packageJsonContent, { spaces: 2 });
 
-    for (const dir of cypressDirs) {
-        await fs.ensureDir(dir);
-    }
+  if (answers.installDependencies) {
+    console.log('Running npm install...');
+    exec('npm install', { cwd: process.cwd() }, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Error during npm install: ${error.message}`);
+        return;
+      }
+      console.log(stdout);
+      console.error(stderr);
+    });
+  }
 
-    // Create example spec file based on BDD selection
-    if (!answers.testDesign) {
-        const exampleSpecPath = path.join(process.cwd(), 'cypress', 'e2e', 'example.cy.' + (answers.configLanguage === 'JavaScript' ? 'js' : 'ts'));
-        const exampleSpecContent = `
+  // Create Cypress folder structure
+  const cypressDirs = [
+    path.join(process.cwd(), 'cypress', 'e2e'),
+    path.join(process.cwd(), 'cypress', 'fixtures'),
+    path.join(process.cwd(), 'cypress', 'support')
+  ];
+
+  for (const dir of cypressDirs) {
+    await fs.ensureDir(dir);
+  }
+
+  // Create example spec file based on BDD selection
+  if (!answers.testDesign) {
+    const exampleSpecPath = path.join(process.cwd(), 'cypress', 'e2e', 'example.cy.' + (answers.configLanguage === 'JavaScript' ? 'js' : 'ts'));
+    const exampleSpecContent = `
 describe('Example Test', () => {
     it('visits the base URL', () => {
         cy.visit('${answers.baseUrl}');
     });
 });
         `;
-        await fs.writeFile(exampleSpecPath, exampleSpecContent);
-    }
+    await fs.writeFile(exampleSpecPath, exampleSpecContent);
+  }
 
-    // Create example fixture file
-    const exampleFixturePath = path.join(process.cwd(), 'cypress', 'fixtures', 'example.json');
-    const exampleFixtureContent = {
-        "exampleKey": "exampleValue"
-    };
-    await fs.writeJson(exampleFixturePath, exampleFixtureContent, { spaces: 2 });
+  // Create example fixture file
+  const exampleFixturePath = path.join(process.cwd(), 'cypress', 'fixtures', 'example.json');
+  const exampleFixtureContent = {
+    "exampleKey": "exampleValue"
+  };
+  await fs.writeJson(exampleFixturePath, exampleFixtureContent, { spaces: 2 });
 
-    // Create support files based on BDD selection
-    const supportDir = path.join(process.cwd(), 'cypress', 'support');
-    const supportE2EPath = path.join(supportDir, 'e2e.' + (answers.configLanguage === 'JavaScript' ? 'js' : 'ts'));
-    const supportCommandsPath = path.join(supportDir, 'commands.' + (answers.configLanguage === 'JavaScript' ? 'js' : 'ts'));
+  // Create support files based on BDD selection
+  const supportDir = path.join(process.cwd(), 'cypress', 'support');
+  const supportE2EPath = path.join(supportDir, 'e2e.' + (answers.configLanguage === 'JavaScript' ? 'js' : 'ts'));
+  const supportCommandsPath = path.join(supportDir, 'commands.' + (answers.configLanguage === 'JavaScript' ? 'js' : 'ts'));
 
-    const supportE2EContent = `
-// Import commands.js using ES2015 syntax:
-import './commands';
-    `;
-    const supportCommandsContent = `
+  let supportE2EContent;
+  const supportE2EContentConfig = {
+    mochawesome: `
+      // Import commands.js using ES2015 syntax:
+      import './commands';
+      import 'cypress-mochawesome-reporter/register';
+    `,
+    allure:`
+      // Import commands.js using ES2015 syntax:
+      import './commands';
+      import 'allure-cypress/commands';
+    `
+  }
+
+  if (answers.reportChoice){
+    supportE2EContent = supportE2EContentConfig[answers.reporter]
+  }else{
+      supportE2EContent = `
+    // Import commands.js using ES2015 syntax:
+    import './commands';
+        `;
+
+  }
+  const supportCommandsContent = `
 // ***********************************************
 // Visit https://on.cypress.io/custom-commands to
 // learn more about custom commands.
@@ -405,16 +513,16 @@ import './commands';
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
     `;
-    await fs.writeFile(supportE2EPath, supportE2EContent);
-    await fs.writeFile(supportCommandsPath, supportCommandsContent);
+  await fs.writeFile(supportE2EPath, supportE2EContent);
+  await fs.writeFile(supportCommandsPath, supportCommandsContent);
 
-    // Create BDD specific files if BDD is selected
-    if (answers.testDesign) {
-        const bddTestDir = path.join(process.cwd(), 'cypress', 'e2e', 'tests');
-        await fs.ensureDir(bddTestDir);
+  // Create BDD specific files if BDD is selected
+  if (answers.testDesign) {
+    const bddTestDir = path.join(process.cwd(), 'cypress', 'e2e', 'tests');
+    await fs.ensureDir(bddTestDir);
 
-        const stepsSpecPath = path.join(bddTestDir, 'steps.spec.cy.' + (answers.configLanguage === 'JavaScript' ? 'js' : 'ts'));
-        const stepsSpecContent = `
+    const stepsSpecPath = path.join(bddTestDir, 'steps.spec.cy.' + (answers.configLanguage === 'JavaScript' ? 'js' : 'ts'));
+    const stepsSpecContent = `
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 Given(/^I am on the home page$/, () => {
@@ -429,10 +537,10 @@ Then(/^I should see cypress doc$/, () => {
     cy.get('h1').should('contain', 'Why Cypress?');
 });
         `;
-        await fs.writeFile(stepsSpecPath, stepsSpecContent);
+    await fs.writeFile(stepsSpecPath, stepsSpecContent);
 
-        const featurePath = path.join('cypress', 'e2e', 'tests.feature');
-        const featureContent = `
+    const featurePath = path.join('cypress', 'e2e', 'tests.feature');
+    const featureContent = `
 Feature: Sample Test
 
     Scenario: Check site is available
@@ -440,12 +548,12 @@ Feature: Sample Test
         When I click on doc link
         Then I should see cypress doc
         `;
-        await fs.writeFile(featurePath, featureContent);
-    }
+    await fs.writeFile(featurePath, featureContent);
+  }
 
-    // Create tsconfig.json if TypeScript is selected
-    if (answers.configLanguage === 'TypeScript') {
-        const tsConfigContent = `
+  // Create tsconfig.json if TypeScript is selected
+  if (answers.configLanguage === 'TypeScript') {
+    const tsConfigContent = `
 {
   "compilerOptions": {
     "esModuleInterop": true,
@@ -465,16 +573,16 @@ Feature: Sample Test
   ]
 }
         `;
-        await fs.writeFile(tsConfigFilePath, tsConfigContent);
-    }
+    await fs.writeFile(tsConfigFilePath, tsConfigContent);
+  }
 
-    console.log(`Configuration file created at ${configFilePath}`);
-    console.log(`Default Cypress folders and files created in ${process.cwd()}`);
-    if (answers.configLanguage === 'TypeScript') {
-        console.log(`TypeScript configuration file created at ${tsConfigFilePath}`);
-    }
+  console.log(`Configuration file created at ${configFilePath}`);
+  console.log(`Default Cypress folders and files created in ${process.cwd()}`);
+  if (answers.configLanguage === 'TypeScript') {
+    console.log(`TypeScript configuration file created at ${tsConfigFilePath}`);
+  }
 }
 
 runWizard().catch((error) => {
-    console.error('Error running wizard:', error);
+  console.error('Error running wizard:', error);
 });
