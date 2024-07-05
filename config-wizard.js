@@ -177,36 +177,67 @@ export default defineConfig({
         
         `,
     esbuild: answers.configLanguage === 'JavaScript' ? `
-const { defineConfig } = require('cypress');
-const createBundler = require('@bahmutov/cypress-esbuild-preprocessor');
-const addCucumberPreprocessorPlugin = require('@badeball/cypress-cucumber-preprocessor').addCucumberPreprocessorPlugin;
+const { defineConfig } = require("cypress");
+const createBundler = require("@bahmutov/cypress-esbuild-preprocessor");
+const {
+  addCucumberPreprocessorPlugin,
+} = require("@badeball/cypress-cucumber-preprocessor");
+const {
+  createEsbuildPlugin,
+} = require("@badeball/cypress-cucumber-preprocessor/esbuild");
+
+async function setupNodeEvents(on, config) {
+  // This is required for the preprocessor to be able to generate JSON reports after each run, and more,
+  await addCucumberPreprocessorPlugin(on, config);
+
+  on(
+    "file:preprocessor",
+    createBundler({
+      plugins: [createEsbuildPlugin(config)],
+    })
+  );
+
+  // Make sure to return the config object as it might have been modified by the plugin.
+  return config;
+}
 
 module.exports = defineConfig({
     e2e: {
         baseUrl: '${answers.baseUrl}',
         specPattern: '**/*.feature',
-        async setupNodeEvents(on, config) {
-            await addCucumberPreprocessorPlugin(on, config);
-            on('file:preprocessor', createBundler());
-            return config;
-        }
+        setupNodeEvents,
     }
 });
         ` : `
-import { defineConfig } from 'cypress';
-import createBundler from '@bahmutov/cypress-esbuild-preprocessor';
-import { addCucumberPreprocessorPlugin } from '@badeball/cypress-cucumber-preprocessor';
+import { defineConfig } from "cypress";
+import createBundler from "@bahmutov/cypress-esbuild-preprocessor";
+import { addCucumberPreprocessorPlugin } from "@badeball/cypress-cucumber-preprocessor";
+import { createEsbuildPlugin } from "@badeball/cypress-cucumber-preprocessor/esbuild";
+
+async function setupNodeEvents(
+  on: Cypress.PluginEvents,
+  config: Cypress.PluginConfigOptions
+): Promise<Cypress.PluginConfigOptions> {
+  // This is required for the preprocessor to be able to generate JSON reports after each run, and more,
+  await addCucumberPreprocessorPlugin(on, config);
+
+  on(
+    "file:preprocessor",
+    createBundler({
+      plugins: [createEsbuildPlugin(config)],
+    })
+  );
+
+  // Make sure to return the config object as it might have been modified by the plugin.
+  return config;
+}
 
 export default defineConfig({
     e2e: {
         baseUrl: '${answers.baseUrl}',
         specPattern: '**/*.feature',
-        async setupNodeEvents(on, config) {
-            await addCucumberPreprocessorPlugin(on, config);
-            on('file:preprocessor', createBundler());
-            return config;
-        }
-    }
+        setupNodeEvents,
+    },
 });
         `,
     webpack: answers.configLanguage === 'JavaScript' ? `
@@ -484,18 +515,6 @@ describe('Example Test', () => {
       import './commands';
       import 'allure-cypress/commands';
     `
-    //     break
-    //   case 'badeball':
-    //     supportE2EContent = `
-    //   // Import commands.js using ES2015 syntax:
-    //   import './commands';
-    // `
-    //     break
-    //   case 'multipleCucumber':
-    //     supportE2EContent = `
-    //   // Import commands.js using ES2015 syntax:
-    //   import './commands';
-    // `
     }
   } else {
     supportE2EContent = `
