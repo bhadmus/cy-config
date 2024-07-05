@@ -469,7 +469,7 @@ describe('Example Test', () => {
   const supportCommandsPath = path.join(supportDir, 'commands.' + (answers.configLanguage === 'JavaScript' ? 'js' : 'ts'));
   let supportE2EContent;
 
-  if (answers.reportChoice) {
+  if (!answers.testDesign && answers.reportChoice) {
     switch (answers.reporter) {
       case 'mochawesome':
         supportE2EContent = `
@@ -484,18 +484,18 @@ describe('Example Test', () => {
       import './commands';
       import 'allure-cypress/commands';
     `
-        break
-      case 'badeball':
-        supportE2EContent = `
-      // Import commands.js using ES2015 syntax:
-      import './commands';
-    `
-        break
-      case 'multipleCucumber':
-        supportE2EContent = `
-      // Import commands.js using ES2015 syntax:
-      import './commands';
-    `
+    //     break
+    //   case 'badeball':
+    //     supportE2EContent = `
+    //   // Import commands.js using ES2015 syntax:
+    //   import './commands';
+    // `
+    //     break
+    //   case 'multipleCucumber':
+    //     supportE2EContent = `
+    //   // Import commands.js using ES2015 syntax:
+    //   import './commands';
+    // `
     }
   } else {
     supportE2EContent = `
