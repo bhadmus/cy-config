@@ -26,9 +26,9 @@
   },
   "homepage": "https://github.com/bhadmus/cy-config#readme",
   "dependencies": {
-    "inquirer": "^8.4.0",
+    "inquirer": "^9.3.4",
     "fs-extra": "^10.0.0",
     "path": "^0.12.7",
-    "child_process": "^1.1.2"
+    "child_process": "^1.0.2"
   }
 }
