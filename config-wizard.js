@@ -78,7 +78,7 @@ async function runWizard() {
         type: 'list',
         name: 'reporter',
         message: 'Which reporter do you prefer?',
-        choices: answers.testDesign ? ['badeball', 'multiple-cucumber-html-reporter'] : ['mochawesome', 'allure'],
+        choices: answers.testDesign ? ['badeball', 'multipleCucumber'] : ['mochawesome', 'allure'],
         default: answers.testDesign ? 'badeball' : 'mochawesome'
       }
     ]);
@@ -92,7 +92,7 @@ async function runWizard() {
   const tsConfigFilePath = path.join(process.cwd(), 'tsconfig.json'); // tsconfig.json path directly in cwd
 
   const reporterConfig = {
-      mochawesome: `
+    mochawesome: `
         const { defineConfig } = require('cypress');
 
         module.exports = defineConfig({
@@ -105,7 +105,7 @@ async function runWizard() {
             }
         });
       `,
-      allure: `
+    allure: `
           const { defineConfig } = require('cypress');
           const { allureCypress } = require("allure-cypress/reporter");
 
@@ -117,9 +117,9 @@ async function runWizard() {
                   }
               }
           });
-            `   
+            `
 
-      
+
   }
 
   const bundlerConfig = {
@@ -391,7 +391,7 @@ export default defineConfig({
           "output": "reports/html/results.html"
         }
         break
-      case 'multiple-cucumber-html-reporter':
+      case 'multipleCucumber':
         packageJsonContent.devDependencies["multiple-cucumber-html-reporter"] = "latest";
 
     }
@@ -467,25 +467,38 @@ describe('Example Test', () => {
   const supportDir = path.join(process.cwd(), 'cypress', 'support');
   const supportE2EPath = path.join(supportDir, 'e2e.' + (answers.configLanguage === 'JavaScript' ? 'js' : 'ts'));
   const supportCommandsPath = path.join(supportDir, 'commands.' + (answers.configLanguage === 'JavaScript' ? 'js' : 'ts'));
-
   let supportE2EContent;
-  const supportE2EContentConfig = {
-    mochawesome: `
+
+  if (answers.reportChoice) {
+    switch (answers.reporter) {
+      case 'mochawesome':
+        supportE2EContent = `
       // Import commands.js using ES2015 syntax:
       import './commands';
       import 'cypress-mochawesome-reporter/register';
-    `,
-    allure:`
+    `
+        break
+      case 'allure':
+        supportE2EContent = `
       // Import commands.js using ES2015 syntax:
       import './commands';
       import 'allure-cypress/commands';
     `
-  }
-
-  if (answers.reportChoice){
-    supportE2EContent = supportE2EContentConfig[answers.reporter]
-  }else{
-      supportE2EContent = `
+        break
+      case 'badeball':
+        supportE2EContent = `
+      // Import commands.js using ES2015 syntax:
+      import './commands';
+    `
+        break
+      case 'multipleCucumber':
+        supportE2EContent = `
+      // Import commands.js using ES2015 syntax:
+      import './commands';
+    `
+    }
+  } else {
+    supportE2EContent = `
     // Import commands.js using ES2015 syntax:
     import './commands';
         `;
@@ -550,6 +563,24 @@ Feature: Sample Test
         `;
     await fs.writeFile(featurePath, featureContent);
   }
+  // Create report generetor based on BDD selected and multiCucumber report selected
+
+  const reportGenDir = path.join(process.cwd(), 'reportGen.js');
+
+  if (answers.reportChoice && answers.reporter === 'multipleCucumber') {
+    const multipleCucumberGeneratorConfig = `
+  const report = require("multiple-cucumber-html-reporter");
+
+  report.generate({
+      jsonDir: "./reports/json/",
+      reportPath: "./reports/html/cucumber-report/",
+  });
+    `;
+
+    await fs.writeFile(reportGenDir, multipleCucumberGeneratorConfig);
+  }
+
+
 
   // Create tsconfig.json if TypeScript is selected
   if (answers.configLanguage === 'TypeScript') {
