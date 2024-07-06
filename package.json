@@ -1,5 +1,5 @@
 {
-  "name": "cy-confwiz",
+  "name": "cy-e2e",
   "version": "1.0.0",
   "type": "module",
   "description": "",
@@ -8,7 +8,7 @@
     "start": "node config-wizard.js"
   },
   "bin": {
-    "cy-config": "./config-wizard.js"
+    "cy-e2e": "./index.js"
   },
   "repository": {
     "type": "git",
