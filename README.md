@@ -16,17 +16,18 @@ You can create a cypress Template project that you can easily edit to suit your 
 
  Going through the questions looks like this
 
- | ![BDD](shots/cy-e2e-09.jpg) |
- |:--:| 
- | *BDD Typsecript Config with reporter selected* |
 
- | ![TDD](shots/cy-e2e-10.jpg) |
- |:--:| 
- | *Cypress Config with no BDD or reporter selected* |
+| ![BDD](shots/cy-e2e-09.jpg)   |
+|:--:| 
+| *BDD Typsecript Config with reporter selected* |
 
- | ![BDD](shots/cy-e2e-11.jpg) |
- |:--:| 
- | *Cypress Project Created* |
+| ![TDD](shots/cy-e2e-10.jpg) |
+|:--:| 
+| *Cypress Config with no BDD or reporter selected* |
+
+| ![Project-Structure](shots/cy-e2e-11.jpg) |
+|:--:| 
+| *Cypress Project Created* |
 
  You can run the `npx cypress run` or `npx cypress open` command to see it execute.
 
