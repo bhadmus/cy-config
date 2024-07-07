@@ -1,4 +1,4 @@
-# cy-e2e
+# cypress-e2e-cli
 
 Are you a newbie in QA Engineering? Are you trying to ease your way into Automation? Have you been learning Cypress? Would you like to be able to set up Cypress with a BDD framework and reporter without stress?
 
@@ -7,10 +7,10 @@ If yes, this plugin is for you. Since I started training people in software auto
 You can create a cypress Template project that you can easily edit to suit your purpose.
 
 ## Installation
-`npm install -g cy-e2e`
+`npm install -g cypress-e2e-cli`
 
 ## Usage
- - After Installation, open the terminal in your desired directory and run `cy-e2e`
+ - After Installation, open the terminal in your desired directory and run `cypress-e2e-cli`
 
  ## Example
 
