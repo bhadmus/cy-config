@@ -1,0 +1,7 @@
+node_modules/
+test/
+shots/
+package-lock.json
+.vscode/
+.DS_Store
+.idea/

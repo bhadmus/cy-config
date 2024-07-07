@@ -1,6 +1,6 @@
 {
-  "name": "cy-e2e",
-  "version": "1.0.0",
+  "name": "cypress-e2e-cli",
+  "version": "1.0.1",
   "type": "module",
   "description": "",
   "main": "index.js",
@@ -8,7 +8,7 @@
     "start": "node config-wizard.js"
   },
   "bin": {
-    "cy-e2e": "./index.js"
+    "cypress-e2e-cli": "./index.js"
   },
   "repository": {
     "type": "git",
