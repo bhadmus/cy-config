@@ -36,7 +36,8 @@ You can create a cypress Template project that you can easily edit to suit your 
 
 ## Compatibility
 
-It should be compatible with all versions of Cypress
+It should be compatible with all versions of Cypress 
+Node version >= 20+
 
 ## Support
 
