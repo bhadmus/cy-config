@@ -20,7 +20,7 @@ export async function createConfigurationFile(answers, configFilePath) {
         const exampleSpecContent = `
     describe('Example Test', () => {
         it('visits the base URL', () => {
-            cy.visit('${answers.baseUrl}');
+            cy.visit('/');
         });
     });
             `;
