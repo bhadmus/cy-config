@@ -1,6 +1,6 @@
 {
   "name": "cypress-e2e-cli",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "type": "module",
   "description": "",
   "main": "index.js",
