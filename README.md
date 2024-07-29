@@ -1,3 +1,4 @@
+![Image](shots/cypress_e2e_cli_banner_with_logo.png)
 # cypress-e2e-cli
 
 Are you a newbie in QA Engineering? Are you trying to ease your way into Automation? Have you been learning Cypress? Would you like to be able to set up Cypress with a BDD framework and reporter without stress?
