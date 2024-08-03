@@ -1,5 +1,5 @@
-![Image](shots/cypress_e2e_cli_banner_with_logo.png)
-# cypress-e2e-cli
+![Image](shots/cye2e_banner.png)
+# cye2e
 
 Are you a newbie in QA Engineering? Are you trying to ease your way into Automation? Have you been learning Cypress? Would you like to be able to set up Cypress with a BDD framework and reporter without stress?
 
@@ -8,10 +8,10 @@ If yes, this plugin is for you. Since I started training people in software auto
 You can create a cypress Template project that you can easily edit to suit your purpose.
 
 ## Installation
-`npm install -g cypress-e2e-cli`
+`npm install -g cye2e`
 
 ## Usage
- - After Installation, open the terminal in your desired directory and run `cypress-e2e-cli`
+ - After Installation, open the terminal in your desired directory and run `cye2e`
 
  ## Example
 
@@ -30,6 +30,14 @@ You can create a cypress Template project that you can easily edit to suit your 
 |:--:| 
 | *Cypress Project Created* |
 
+| ![CI/CD-Structure](shots/cy-e2e-16.jpg) |
+|:--:| 
+| *Cypress Config with BDD, Reporter, and GitHub Template* |
+
+| ![CI/CD-Structure](shots/cy-e2e-15.jpg) |
+|:--:| 
+| *Cypress BDD Folder Structure with GitHub Template* |
+
  You can run the `npx cypress run` or `npx cypress open` command to see it execute.
 
  What's left is to continue to edit the template created to suit your needs
@@ -38,7 +46,7 @@ You can create a cypress Template project that you can easily edit to suit your 
 ## Compatibility
 
 - It should be compatible with all versions of Cypress 
-- Node version >= 20+
+- Node version >= 18+
 
 ## Support
 
