@@ -16,7 +16,7 @@ export async function collectInfo() {
 
   if (args.includes("--help") || args.includes("-h")) {
     console.log(`
-Usage: cye2e-cli 
+Usage: cye2e 
 
 Options:
   -V, --version          output the current version

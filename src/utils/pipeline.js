@@ -4,11 +4,8 @@ import fs from "fs-extra";
 import path from "path";
 
 export async function createPipelineFile(answers) {
-  const githubDir = path.join(process.cwd(), ".github", "workflows");
-  await fs.ensureDir(githubDir);
   const bitbucketFilePath = path.join(process.cwd(), "bitbucket-pipelines.yml");
   const gitlabFilePath = path.join(process.cwd(), ".gitlab-ci.yml");
-  const githubFilePath = path.join(githubDir, "runner.yml");
 
   let pipelineConfigContent;
 
@@ -25,7 +22,7 @@ test:
     # install dependencies
     - npm i
     - npx cypress run
-    `
+    `;
         await fs.writeFile(gitlabFilePath, pipelineConfigContent);
         break;
       case "bitbucket":
@@ -40,11 +37,11 @@ pipelines:
           - npm i
           # run cypress
           - npx cypress run
-    `
+    `;
         await fs.writeFile(bitbucketFilePath, pipelineConfigContent);
         break;
       case "github":
-        pipelineConfigContent=`name: Run Cypress Test
+        pipelineConfigContent = `name: Run Cypress Test
 
 on: [push]
 
@@ -59,7 +56,10 @@ jobs:
         - name: Run Cypress
           uses: cypress-io/github-action@v6
 
-    `
+    `;
+        const githubDir = path.join(process.cwd(), ".github", "workflows");
+        await fs.ensureDir(githubDir);
+        const githubFilePath = path.join(githubDir, "runner.yml");
         await fs.writeFile(githubFilePath, pipelineConfigContent);
     }
   }
