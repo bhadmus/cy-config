@@ -4,7 +4,7 @@ import inquirer from "inquirer";
 
 export async function collectInfo() {
 
-  const version = "2.0.1"; 
+  const version = "2.0.2"; 
 
   // Check command-line arguments for --version or --help
   const args = process.argv.slice(2);
