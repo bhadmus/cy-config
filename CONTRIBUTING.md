@@ -1,4 +1,4 @@
-# Contributing to cye2e
+# Contributing to cy-config
 
 Thank you for considering contributing to the **cye2e** project! This guide outlines how to get involved and contribute effectively.
 
