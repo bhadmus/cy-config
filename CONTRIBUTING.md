@@ -1,6 +1,6 @@
-# Contributing to cy-config
+# Contributing to cye2e
 
-Thank you for considering contributing to the **cy-config** project! This guide outlines how to get involved and contribute effectively.
+Thank you for considering contributing to the **cye2e** project! This guide outlines how to get involved and contribute effectively.
 
 ## Table of Contents
 
@@ -29,7 +29,7 @@ If you encounter a bug or have a question about the project, please:
    - Steps to reproduce the issue
    - The expected result
    - The actual result
-   - Version of `cy-config` being used
+   - Version of `cye2e` being used
    - Any other relevant information, such as system configurations
 
 ### Suggesting Enhancements
@@ -62,15 +62,15 @@ Please keep the scope of each PR focused and atomic. If you plan on making signi
 
 ## Setting up the Development Environment
 
-To contribute to `cy-config`, follow these steps to set up your local environment:
+To contribute to `cye2e`, follow these steps to set up your local environment:
 
 1. Clone the repository:
    ```
-   git clone https://github.com/your-username/cy-config.git
+   git clone https://github.com/your-username/cye2e.git
    ```
 2. Navigate to the project directory:
    ```
-   cd cy-config
+   cd cye2e
    ```
 3. Install dependencies:
    ```
