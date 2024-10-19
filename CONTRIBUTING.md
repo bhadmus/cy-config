@@ -66,11 +66,11 @@ To contribute to `cye2e`, follow these steps to set up your local environment:
 
 1. Clone the repository:
    ```
-   git clone https://github.com/your-username/cye2e.git
+   git clone https://github.com/your-username/cy-config.git
    ```
 2. Navigate to the project directory:
    ```
-   cd cye2e
+   cd cy-config
    ```
 3. Install dependencies:
    ```
